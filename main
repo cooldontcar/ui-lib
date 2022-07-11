@@ -45,6 +45,7 @@ end
 --// Constuctor \\--
 function UiLib:CreateWindow(options)
 	local Tab = {}
+	Tab.__index = UiLib
 	
 	local WindowName = options.Name or ""
 	
@@ -156,4 +157,4 @@ makefolder("Dans Lib")
 makefolder("Dans Lib/Themes")
 
 writefile("Dans Lib/Settings.txt","Heey")
-]] 
+]]
