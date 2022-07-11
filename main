@@ -129,7 +129,7 @@ function UiLib:CreateWindow(options)
 		Image = "rbxassetid://1316045217";
 		ImageTransparency = 0.88;
 		ScaleType = Enum.ScaleType.Slice;
-		SliceCenter = UDim2.new(10,10,118,118);
+		SliceCenter = Rect.new(10,10,118,118);
 		SliceScale = 1
 	})
 	
