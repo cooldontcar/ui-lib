@@ -139,7 +139,7 @@ function UiLib:CreateWindow(options)
 	end
 
 	function Tab:Load()
-		self.Window = Service.CoreGui
+		self.Window.Parent = Service.CoreGui
 	end 
 
 	return Tab
