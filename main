@@ -93,7 +93,6 @@ function UiLib:CreateWindow(options)
 		CanvasSize = UDim2.new(0,0,0,0);
 		ScrollBarImageColor3 = Color3.fromRGB(170,170,170);
 		ScrollBarImageTransparency = 0.5;
-		ScrollBarTransparency = 0.5;
 		ScrollBarThickness = 5;
 		Parent = Window
 	})
@@ -105,7 +104,6 @@ function UiLib:CreateWindow(options)
 		CanvasSize = UDim2.new(0,0,0,0);
 		ScrollBarImageColor3 = Color3.fromRGB(170,170,170);
 		ScrollBarImageTransparency = 0.5;
-		ScrollBarTransparency = 0.5;
 		ScrollBarThickness = 5;
 		Parent = Window
 	})
