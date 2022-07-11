@@ -63,7 +63,7 @@ function UiLib:CreateWindow(options)
 	})
 	
 	local UICorner = Create("UICorner",{
-		CornerRadius = UDim(0,3);
+		CornerRadius = UDim.new(0,3);
 		Parent = Window
 	})
 	
