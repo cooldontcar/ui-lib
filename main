@@ -2,7 +2,7 @@ local UiLib = {
 	Objects = {};
 	Version = 0.1; 
 }
-
+UiLib.__index = UiLib
 local Service = setmetatable({},{
 	__index = function(self,key)
 		if game:GetService(key) then
@@ -45,7 +45,6 @@ end
 --// Constuctor \\--
 function UiLib:CreateWindow(options)
 	local Tab = {}
-	Tab.__index = UiLib
 	
 	local WindowName = options.Name or ""
 	
