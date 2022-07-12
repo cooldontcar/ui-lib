@@ -312,8 +312,9 @@ function UiLib:CreateWindow(options) -- Name
 				BackgroundColor3 = Color3.fromRGB(170,170,170);
 				BackgroundTransparency = 0.5;
 				BorderSizePixel = 0;
-				Position = UDim2.new(0,0,0,33);
+				Position = UDim2.new(0,0,0,30);
 				Size = UDim2.new(1,0,0,1);
+				Visible = false;
 				Parent = Section
 			})
 
@@ -353,7 +354,7 @@ function UiLib:CreateWindow(options) -- Name
 			local HoldingFrame = Create("Frame",{
 				AutomaticSize = Enum.AutomaticSize.Y;
 				BackgroundTransparency = 1;
-				Position = UDim2.new(0,0,0,39);
+				Position = UDim2.new(0,0,0,30);
 				Size = UDim2.new(1,0,0,0);
 				Parent = Section
 			})
@@ -374,9 +375,11 @@ function UiLib:CreateWindow(options) -- Name
 			Minimize.MouseButton1Click:Connect(function()
 				Opened = not Opened
 				if Opened == true then
+					Line.Visible = true
 					Section.AutomaticSize = Enum.AutomaticSize.Y
 					Tween(Arrow,TweenInfo.new(0.2,Enum.EasingStyle.Linear),{Rotation = 0})
 				else
+					Line.Visible = false
 					Section.AutomaticSize = Enum.AutomaticSize.None
 					Tween(Arrow,TweenInfo.new(0.2,Enum.EasingStyle.Linear),{Rotation = 180})
 				end
@@ -753,15 +756,188 @@ function UiLib:CreateWindow(options) -- Name
 					end
 				end)
 			end
+			
+			function SectionMethods:CreateDropdown(options) -- Name,buttons,callback
+				local DropdownName = options.Name or "Unnamed"
+				local Buttons = options.Buttons or {}
+				local Opened = false
+				
+				local Dropdown = Create("Frame",{
+					BackgroundTransparency = 1;
+					Size = UDim2.new(1,0,0,30);
+					ClipsDescendants = true;
+					Parent = HoldingFrame
+				})
+				
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = Dropdown
+				})
 
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Parent = Dropdown
+				})
+				
+				local Line = Create("Frame",{
+					BackgroundColor3 = Color3.fromRGB(170,170,170);
+					BackgroundTransparency = 0.5;
+					Position = UDim2.new(0,0,0,30);
+					Size = UDim2.new(1,0,0,1);
+					Visible = false;
+					Parent = Dropdown
+				})
+				
+				local DropdownHolder = Create("Frame",{
+					AutomaticSize = Enum.AutomaticSize.Y;
+					BackgroundTransparency = 1;
+					Position = UDim2.new(0,0,0,30);
+					Visible = false;
+					Size = UDim2.new(1,0,0,0);
+					Parent = Dropdown
+				})
+				
+				local UIListLayout = Create("UIListLayout",{
+					Padding = UDim.new(0,7);
+					Parent = DropdownHolder
+				})
+
+				local UIPadding = Create("UIPadding",{
+					PaddingBottom = UDim.new(0,5);
+					PaddingLeft = UDim.new(0,5);
+					PaddingRight = UDim.new(0,5);
+					PaddingTop = UDim.new(0,5);
+					--Parent = DropdownHolder
+				})
+				
+				local Selected = Create("TextLabel",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(0.712,0,0,0);
+					Size = UDim2.new(0,50,0,30);
+					Font = Enum.Font.SourceSansLight;
+					Text = "";
+					TextColor3 = Color3.fromRGB(255,255,255);
+					TextSize = 16;
+					Parent = Dropdown
+				})
+				
+
+				local Arrow = Create("ImageLabel",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(0.924,0,0,9);
+					Rotation = 180;
+					Size = UDim2.new(0.05,0,0,15);
+					Image = "rbxassetid://8964217509";
+					ImageColor3 = Color3.fromRGB(255,255,255);
+					Parent = Dropdown
+				})
+				
+				
+				for k,v in next,Buttons do
+					local Button:TextButton = Create("TextButton",{
+						BackgroundTransparency = 1;
+						Name = "";
+						Size = UDim2.new(1,0,0,30);
+						Font = Enum.Font.SourceSansLight;
+						TextWrapped = true;
+						RichText = true;
+						TextSize = 21;
+						Text = tostring(v);
+						AutomaticSize = Enum.AutomaticSize.Y;
+						TextColor = BrickColor.White();
+						Parent = DropdownHolder
+					})
+
+					local UICorner = Create("UICorner",{
+						CornerRadius = UDim.new(0,3);
+						Parent = Button
+					})
+
+					local UIStroke = Create("UIStroke",{
+						ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+						Color = Color3.fromRGB(127,127,127);
+						Parent = Button
+					})
+
+					Button.MouseEnter:Connect(function()
+						Tween(Button,TweenInfo.new(0.2,Enum.EasingStyle.Sine),{BackgroundTransparency = 0.8})
+					end)
+
+					Button.MouseLeave:Connect(function()
+						Tween(Button,TweenInfo.new(0.2,Enum.EasingStyle.Sine),{BackgroundTransparency = 1})
+					end)
+					
+					if options.Callback then
+						Button.MouseButton1Click:Connect(function()
+							Selected.Text = tostring(v)
+							options.Callback(v,k)
+							
+							Opened = false
+							Dropdown.AutomaticSize = Enum.AutomaticSize.None
+							DropdownHolder.Visible = false
+							Line.Visible = false
+							Tween(Arrow,TweenInfo.new(0.2,Enum.EasingStyle.Linear),{Rotation = 180})
+							SectionSizeConnection:Disconnect()
+							local Clone = UIListLayout:Clone()
+							UIListLayout:Destroy()
+							UIListLayout = Clone
+							Clone.Parent = DropdownHolder
+							UIPadding.Parent = nil
+						end)
+					end
+				end
+				
+				local Minimize = Create("TextButton",{
+					BackgroundTransparency = 1;
+					Size = UDim2.new(1,0,0,30);
+					Text = "";
+					Parent = Dropdown
+				})
+				
+				local Title = Create("TextLabel",{
+					BackgroundTransparency = 1;
+					Text = DropdownName;
+					Position = UDim2.new(0.029,0,0,0);
+					Size = UDim2.new(0,40,0,30);
+					Font = Enum.Font.SourceSansLight;
+					TextColor3 = Color3.fromRGB(255,255,255);
+					TextSize = 21;
+					Parent = Dropdown
+				})
+				
+				Minimize.MouseButton1Click:Connect(function()
+					Opened = not Opened
+					if Opened == true then
+						UIPadding.Parent = DropdownHolder
+						Dropdown.AutomaticSize = Enum.AutomaticSize.Y
+						DropdownHolder.Visible = true
+						Line.Visible = true
+						Tween(Arrow,TweenInfo.new(0.2,Enum.EasingStyle.Linear),{Rotation = 0})
+					else
+						Line.Visible = false
+						UIPadding.Parent = nil
+						Dropdown.AutomaticSize = Enum.AutomaticSize.None
+						DropdownHolder.Visible = false
+						Tween(Arrow,TweenInfo.new(0.2,Enum.EasingStyle.Linear),{Rotation = 180})
+					end
+					local Clone = UIListLayout:Clone()
+					UIListLayout:Destroy()
+					UIListLayout = Clone
+					Clone.Parent = DropdownHolder
+				end)
+				
+			end
+			
 			return SectionMethods
 		end
-
+		
+		
 		return TabMethods
 	end
 
 	function WindowMethods:Load()
-		Window.Parent = Service.CoreGui
+		Window.Parent = Player.PlayerGui-- Service.CoreGui
 	end 
 
 	return WindowMethods
@@ -774,7 +950,7 @@ function UiLib:Notification(options) -- Title,Text,Duration
 			Name = "";
 			DisplayOrder = 2147483647;
 			ZIndexBehavior = Enum.ZIndexBehavior.Global;
-			Parent =  Service.CoreGui
+			Parent = Player.PlayerGui-- Service.CoreGui
 		})
 		Screen = UiLib.NotificationScreen
 	end
