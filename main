@@ -937,7 +937,7 @@ function UiLib:CreateWindow(options) -- Name
 	end
 
 	function WindowMethods:Load()
-		Window.Parent = Player.PlayerGui-- Service.CoreGui
+		Window.Parent = Service.CoreGui
 	end 
 
 	return WindowMethods
@@ -950,7 +950,7 @@ function UiLib:Notification(options) -- Title,Text,Duration
 			Name = "";
 			DisplayOrder = 2147483647;
 			ZIndexBehavior = Enum.ZIndexBehavior.Global;
-			Parent = Player.PlayerGui-- Service.CoreGui
+			Parent =  Service.CoreGui
 		})
 		Screen = UiLib.NotificationScreen
 	end
