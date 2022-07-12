@@ -1,1 +1,859 @@
+--[[
 
+
+Simple UI Library I made.
+
+Can create Sections,Tabs,Toggles,Sliders,Buttons,Textboxes, and labels.
+
+TODO: More options for objects, keybinds, dropdowns (probably when I rewrite this), search box (also might be in rewriten version), themes
+
+
+]]
+local UiLib = {
+	Objects = {};
+	Tabs = {};
+	Notifications = {};
+	NotificationScreen = nil
+}
+
+local Service = setmetatable({},{
+	__index = function(self,key)
+		if game:GetService(key) then
+			return game:GetService(key)
+		else
+			error(key.." can not be found")
+		end
+	end,
+})
+
+local Player = Service.Players.LocalPlayer
+
+--// Commons \\--
+function Create(type,props)
+	local Inst = Instance.new(type)
+
+	for k,v in next,props do
+		if k ~= "Parent" then
+			Inst[k] = v
+		end
+	end
+
+	Inst.Parent = props.Parent
+
+	UiLib.Objects[Inst.Name] = Inst
+
+	return Inst
+end
+
+function RandomString(length)
+	local Text = ""
+
+	("."):rep(length or 10):gsub(".",function()
+		Text ..= string.char(math.random(1,100))
+	end)
+
+	return Text
+end
+
+function Tween(object,info,props)
+	local NTween = Service.TweenService:Create(object,info,props)
+	NTween:Play()
+	task.spawn(function()
+		NTween.Completed:Wait()
+		NTween:Destroy()
+	end)
+end
+
+function Draggable(object)
+	local main = object
+	local drag = false
+	local start = UDim2.new(0,0,0,0)
+	local startgui = UDim2.new(0,0,0,0)
+
+	main.InputBegan:Connect(function(input)
+		if input.UserInputState == Enum.UserInputState.Begin and input.UserInputType == Enum.UserInputType.MouseButton1 then
+			drag = true
+			start = input.Position
+			startgui = main.Position
+		end
+	end)
+
+	main.InputEnded:Connect(function(input)
+		if input.UserInputState == Enum.UserInputState.End and input.UserInputType == Enum.UserInputType.MouseButton1 then
+			drag = false
+			start = UDim2.new(0,0,0,0)
+		end
+	end)
+
+	Service.UserInputService.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement and drag then
+			main.Position = UDim2.new(main.Position.X.Scale,(input.Position - start).X+startgui.X.Offset,main.Position.Y.Scale,(input.Position - start).Y+startgui.Y.Offset)
+		end
+	end)
+end
+
+--// Constuctor \\--
+function UiLib:CreateWindow(options) -- Name
+	local WindowMethods = {}
+
+	local WindowName = options.Name or ""
+
+	local Window = Create("ScreenGui",{
+		Name = WindowName;
+		DisplayOrder = 2147483647;
+		ZIndexBehavior = Enum.ZIndexBehavior.Global
+	})
+
+	local MainFrame = Create("Frame",{
+		BackgroundColor3 = Color3.fromRGB(40,40,40);
+		BackgroundTransparency = 0;
+		Parent = Window;
+		Position = UDim2.new(0.293,0,0.259);
+		Size = UDim2.new(0,510,0,314);
+	})
+	Draggable(MainFrame)
+
+	local UICorner = Create("UICorner",{
+		CornerRadius = UDim.new(0,3);
+		Parent = MainFrame
+	})
+
+	local Line = Create("Frame",{
+		BackgroundColor3 = Color3.fromRGB(170,170,170);
+		BackgroundTransparency = 0.5;
+		BorderSizePixel = 0.5;
+		Position = UDim2.new(0.237,0,0.132,0);
+		Size = UDim2.new(0.003,0,0.868,0);
+		Parent = MainFrame
+	})
+
+	local Line2 = Create("Frame",{
+		BackgroundColor3 = Color3.fromRGB(170,170,170);
+		BackgroundTransparency = 0.5;
+		BorderSizePixel = 0.5;
+		Position = UDim2.new(0,0,0.129,0);
+		Size = UDim2.new(1,0,0.003,0);
+		Parent = MainFrame
+	})
+
+	local TabFrame = Create("ScrollingFrame",{
+		BackgroundTransparency = 0.95;
+		Position = UDim2.new(0,0,0.132,0);
+		Size = UDim2.new(0.237,0,0.868,0);
+		CanvasSize = UDim2.new(0,0,0,0);
+		ScrollBarImageColor3 = Color3.fromRGB(170,170,170);
+		ScrollBarImageTransparency = 0.5;
+		BorderSizePixel = 0;
+		ScrollBarThickness = 5;
+		Parent = MainFrame
+	})
+
+	local UIListLayout = Create("UIListLayout",{
+		Padding = UDim.new(0,5);
+		Parent = TabFrame
+	})
+
+	local UIPadding = Create("UIPadding",{
+		PaddingBottom = UDim.new(0,5);
+		PaddingLeft = UDim.new(0,5);
+		PaddingRight = UDim.new(0,5);
+		PaddingTop = UDim.new(0,5);
+		Parent = TabFrame
+	})	
+
+	local SectionFrame = Create("ScrollingFrame",{
+		BackgroundTransparency = 1;
+		Position = UDim2.new(0.24,0,0.132,0);
+		Size = UDim2.new(0.76,0,0.868,0);
+		CanvasSize = UDim2.new(0,0,0,0);
+		ScrollBarImageColor3 = Color3.fromRGB(170,170,170);
+		ScrollBarImageTransparency = 0.5;
+		ScrollBarThickness = 5;
+		BorderSizePixel = 0;
+		Parent = MainFrame
+	})
+
+	local UIListLayout2 = Create("UIListLayout",{
+		Padding = UDim.new(0,5);
+		Parent = SectionFrame
+	})
+
+	local UIPadding2 = Create("UIPadding",{
+		PaddingBottom = UDim.new(0,5);
+		PaddingLeft = UDim.new(0,5);
+		PaddingRight = UDim.new(0,5);
+		PaddingTop = UDim.new(0,5);
+		Parent = SectionFrame
+	})	
+
+	local Shadow = Create("ImageLabel",{
+		AnchorPoint = Vector2.new(0.5,0.5);
+		BackgroundTransparency = 1;
+		Position = UDim2.new(0.5,0,0.5,1);
+		Size = UDim2.new(1,18,1,18);
+		Image = "rbxassetid://1316045217";
+		ImageColor3 = Color3.fromRGB(0,0,0);
+		ImageTransparency = 0.88;
+		ScaleType = Enum.ScaleType.Slice;
+		SliceCenter = Rect.new(10,10,118,118);
+		SliceScale = 1;
+		Parent = MainFrame
+	})
+
+	local Title = Create("TextLabel",{
+		BackgroundTransparency = 1;
+		Size = UDim2.new(0.069,0,0.129,0);
+		Position = UDim2.new(0.024,0,0,0);
+		Font = Enum.Font.SourceSansLight;
+		Text = WindowName;
+		TextColor = BrickColor.new(Color3.fromRGB(255,255,255));
+		TextSize = 18;
+		TextXAlignment = Enum.TextXAlignment.Left;
+		Parent = MainFrame
+	})
+
+	--// Auto canvas resize \\--
+	UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		TabFrame.CanvasSize = UDim2.new(0,0,0,UIListLayout.AbsoluteContentSize.Y+7)
+	end)
+
+	local SectionSizeConnection
+	local function SectionSize()
+		SectionSizeConnection = UIListLayout2:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			SectionFrame.CanvasSize = UDim2.new(0,0,0,UIListLayout2.AbsoluteContentSize.Y+7)
+		end)		
+	end
+	SectionSize()
+
+	UiLib.Window = Window
+
+	function WindowMethods:CreateTab(options) -- Name
+		local TabMethods = {}
+		local FakeName = Service.HttpService:GenerateGUID(false)
+		local TabName = options.Name or "Unnamed"
+
+		local Tab = Create("TextButton",{
+			BackgroundTransparency = 1;
+			Size = UDim2.new(1,0,0,30);
+			Font = Enum.Font.SourceSansLight;
+			TextWrapped = true;
+			TextScaled = true;
+			RichText = true;
+			Text = TabName;
+			TextColor = BrickColor.White();
+			Parent = TabFrame
+		})
+
+		local UICorner = Create("UICorner",{
+			CornerRadius = UDim.new(0,3);
+			Parent = Tab
+		})
+
+		local UIStroke = Create("UIStroke",{
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+			Color = Color3.fromRGB(127,127,127);
+			Parent = Tab
+		})
+
+		Tab.MouseEnter:Connect(function()
+			Tween(Tab,TweenInfo.new(0.2,Enum.EasingStyle.Sine),{BackgroundTransparency = 0.8})
+		end)
+
+		Tab.MouseLeave:Connect(function()
+			Tween(Tab,TweenInfo.new(0.2,Enum.EasingStyle.Sine),{BackgroundTransparency = 1})
+		end)
+
+		local function GetSections()
+			local SectionT = {}
+			for k,v in next,UiLib.Tabs do
+				for name,sections in next,v.Sections do
+					table.insert(SectionT,sections)
+				end
+			end
+			return SectionT
+		end
+
+		Tab.MouseButton1Click:Connect(function()
+			local Sections = GetSections()
+			for k,v in next,Sections do
+				v.Visible = false
+			end
+			for k,v in next,UiLib.Tabs[FakeName].Sections do
+				v.Visible = true
+			end
+		end)
+
+		UiLib.Tabs[FakeName] = {
+			Sections = {}
+		}
+
+		function TabMethods:CreateSection(options) -- Name,Color
+			local SectionMethods = {}
+
+			local SectionName = options.Name or "Unnamed"
+			local SectionColor = options.Color or Color3.fromRGB(127,127,127)
+			local Opened = false
+
+			local Section:TextButton = Create("Frame",{
+				BackgroundTransparency = 1;
+				Size = UDim2.new(1,0,0,30);
+				Visible = false;
+				ClipsDescendants = true;
+				Parent = SectionFrame
+			})
+
+			local Minimize = Create("TextButton",{
+				BackgroundTransparency = 1;
+				Size = UDim2.new(1,0,0,30);
+				Parent = Section
+			})
+
+			local Line = Create("Frame",{
+				BackgroundColor3 = Color3.fromRGB(170,170,170);
+				BackgroundTransparency = 0.5;
+				BorderSizePixel = 0;
+				Position = UDim2.new(0,0,0,33);
+				Size = UDim2.new(1,0,0,1);
+				Parent = Section
+			})
+
+			local UICorner = Create("UICorner",{
+				CornerRadius = UDim.new(0,3);
+				Parent = Section
+			})
+
+			local UIStroke = Create("UIStroke",{
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+				Color = SectionColor;
+				Parent = Section
+			})
+
+			local Arrow = Create("ImageLabel",{
+				BackgroundTransparency = 1;
+				ImageColor3 = Color3.fromRGB(255,255,255);
+				Position = UDim2.new(0.934,0,0,9);
+				Size = UDim2.new(0.05,0,0,15);
+				Rotation = 180;
+				Image = "rbxassetid://8964217509";
+				Parent = Section
+			})
+
+			local Title = Create("TextLabel",{
+				BackgroundTransparency = 1;
+				Size = UDim2.new(0.17,0,0,30);
+				Position = UDim2.new(0.029,0,0,0);
+				Font = Enum.Font.SourceSansLight;
+				Text = SectionName;
+				TextXAlignment = Enum.TextXAlignment.Left;
+				TextColor = BrickColor.new(Color3.fromRGB(255,255,255));
+				TextSize = 30;
+				Parent = Section
+			})
+
+			local HoldingFrame = Create("Frame",{
+				AutomaticSize = Enum.AutomaticSize.Y;
+				BackgroundTransparency = 1;
+				Position = UDim2.new(0,0,0,39);
+				Size = UDim2.new(1,0,0,0);
+				Parent = Section
+			})
+
+			local UIListLayout = Create("UIListLayout",{
+				Padding = UDim.new(0,7);
+				Parent = HoldingFrame
+			})
+
+			local UIPadding = Create("UIPadding",{
+				PaddingBottom = UDim.new(0,5);
+				PaddingLeft = UDim.new(0,5);
+				PaddingRight = UDim.new(0,5);
+				PaddingTop = UDim.new(0,5);
+				Parent = HoldingFrame
+			})
+
+			Minimize.MouseButton1Click:Connect(function()
+				Opened = not Opened
+				if Opened == true then
+					Section.AutomaticSize = Enum.AutomaticSize.Y
+					Tween(Arrow,TweenInfo.new(0.2,Enum.EasingStyle.Linear),{Rotation = 0})
+				else
+					Section.AutomaticSize = Enum.AutomaticSize.None
+					Tween(Arrow,TweenInfo.new(0.2,Enum.EasingStyle.Linear),{Rotation = 180})
+				end
+				SectionSizeConnection:Disconnect()
+				local Clone = UIListLayout2:Clone()
+				UIListLayout2:Destroy()
+				UIListLayout2 = Clone
+				Clone.Parent = SectionFrame
+				SectionSize()
+			end)
+
+			table.insert(UiLib.Tabs[FakeName].Sections,Section)
+
+			--// Section Methods \\--
+			function SectionMethods:CreateLabel(options) -- Name
+				local LabelName = options.Name or "Unnamed"
+
+				local Label = Create("TextLabel",{
+					BackgroundTransparency = 1;
+					Size = UDim2.new(1,0,0,30);
+					Font = Enum.Font.SourceSansLight;
+					TextWrapped = true;
+					Name = "";
+					RichText = true;
+					TextSize = 21;
+					Text = LabelName;
+					AutomaticSize = Enum.AutomaticSize.Y;
+					TextColor = BrickColor.White();
+					Parent = HoldingFrame
+				})
+
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = Label
+				})
+
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Parent = Label
+				})
+			end
+
+			function SectionMethods:CreateButton(options) -- Name,Condition,Callback,SetText
+				local ButtonName = options.Name or "Unnamed"
+				local Condition = nil
+
+				if options.Condition == false then
+					Condition = false
+				else
+					Condition = true
+				end
+
+				local Button:TextButton = Create("TextButton",{
+					BackgroundTransparency = 1;
+					Name = "";
+					Size = UDim2.new(1,0,0,30);
+					Font = Enum.Font.SourceSansLight;
+					TextWrapped = true;
+					RichText = true;
+					TextSize = 21;
+					Text = ButtonName;
+					AutomaticSize = Enum.AutomaticSize.Y;
+					TextColor = BrickColor.White();
+					Parent = HoldingFrame
+				})
+
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = Button
+				})
+
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Parent = Button
+				})
+
+				Button.MouseEnter:Connect(function()
+					Tween(Button,TweenInfo.new(0.2,Enum.EasingStyle.Sine),{BackgroundTransparency = 0.8})
+				end)
+
+				Button.MouseLeave:Connect(function()
+					Tween(Button,TweenInfo.new(0.2,Enum.EasingStyle.Sine),{BackgroundTransparency = 1})
+				end)
+
+				if options.Callback then
+					if Condition == true then
+						Button.MouseButton1Click:Connect(options.Callback)
+					end
+				end
+				
+				return Button
+			end
+
+			function SectionMethods:CreateToggle(options) -- Name,Callback,Condition
+				local ToggleName = options.Name or "Unnamed"
+				local Value = false
+				local Condition = nil
+
+				if options.Condition == false then
+					Condition = false
+				else
+					Condition = true
+				end
+
+				local Toggle:TextButton = Create("TextButton",{
+					BackgroundTransparency = 1;
+					Name = "";
+					Size = UDim2.new(1,0,0,30);
+					Text = "";
+					Parent = HoldingFrame
+				})
+
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = Toggle
+				})
+
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Parent = Toggle
+				})
+
+				local ButtonBorder = Create("Frame",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(1,-30,0.1,0);
+					Size = UDim2.new(-0.014,30,0.8,0);
+					Parent = Toggle
+				})
+
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = ButtonBorder
+				})
+
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Parent = ButtonBorder
+				})
+
+				local Button = Create("Frame",{
+					BackgroundTransparency = 1;
+					BackgroundColor3 = Color3.fromRGB(54, 152, 47);
+					Position = UDim2.new(0.06,0,0.042,0);
+					Size = UDim2.new(0.9,0,0.9,0);
+					Parent = ButtonBorder
+				})
+
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = Button
+				})
+
+				local Title = Create("TextLabel",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(0.034,0,0,0);
+					Size = UDim2.new(0,40,1,0);
+					Font = Enum.Font.SourceSansLight;
+					Text = ToggleName;
+					TextSize = 21;
+					TextColor3 = Color3.fromRGB(255,255,255);
+					Parent = Toggle;
+					TextXAlignment = Enum.TextXAlignment.Left
+				})
+
+				Toggle.MouseButton1Click:Connect(function()
+					if Condition == true then
+						local OldValue = Value
+						Value = not Value
+
+						if Value == true then
+							Tween(Button,TweenInfo.new(0.2,Enum.EasingStyle.Sine),{BackgroundTransparency = 0})
+						else
+							Tween(Button,TweenInfo.new(0.2,Enum.EasingStyle.Sine),{BackgroundTransparency = 1})
+						end
+
+						if options.Callback then
+							options.Callback(Value,OldValue)
+						end
+					end
+				end)
+				
+				return Toggle
+			end
+
+			function SectionMethods:CreateTextBox(options) -- Name,Callback,Placeholder
+				local BoxName = options.Name or "Unnamed"
+				local Placeholder = options.Placeholder or ""
+
+				local Frame = Create("Frame",{
+					BackgroundTransparency = 1;
+					Name = "";
+					Size = UDim2.new(1,0,0,30);
+					Parent = HoldingFrame
+				})
+
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = Frame
+				})
+
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Parent = Frame
+				})
+
+				local TextBox:TextBox = Create("TextBox",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(0.5,0,0.167,0);
+					Size = UDim2.new(0,180,0.667,0);
+					Font = Enum.Font.SourceSansLight;
+					TextColor3 = Color3.fromRGB(255,255,255);
+					TextScaled = true;
+					TextWrapped = true;
+					PlaceholderText = Placeholder;
+					Parent = Frame
+				})
+
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = TextBox
+				})
+
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Parent = TextBox
+				})
+
+				local Title = Create("TextLabel",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(0.034,0,0,0);
+					Size = UDim2.new(0,40,1,0);
+					Font = Enum.Font.SourceSansLight;
+					Text = BoxName;
+					TextColor3 = Color3.fromRGB(255,255,255);
+					TextSize = 21;
+					TextXAlignment = Enum.TextXAlignment.Left;
+					Parent = Frame
+				})
+
+				TextBox.FocusLost:Connect(function(enter)
+					if enter and options.Callback then
+						options.Callback(TextBox.Text)
+					end
+				end)
+			end
+
+			function SectionMethods:CreateSlider(options) -- Name,Callback,Min,Max,Round
+				local SliderName = options.Name or "Unnamed"
+				local Min = options.Min or 0
+				local Max = options.Max or 100
+				local Rounding = options.Round or true
+				local Value = nil
+
+				local Frame = Create("Frame",{
+					BackgroundTransparency = 1;
+					Name = "";
+					Size = UDim2.new(1,0,0,30);
+					Parent = HoldingFrame
+				})
+
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = Frame
+				})
+
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Parent = Frame
+				})
+
+				local TextButton:TextButton = Create("TextButton",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(0.348,0,0.167,0);
+					Size = UDim2.new(0.152,180,0.667,0);
+					Text = "";
+					Font = Enum.Font.SourceSansLight;
+					TextColor3 = Color3.fromRGB(255,255,255);
+					TextSize = 21;
+					TextWrapped = true;
+					Parent = Frame
+				})
+
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = TextButton
+				})
+
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Parent = TextButton
+				})
+
+				local SliderFrame = Create("Frame",{
+					BackgroundTransparency = 0.9;
+					Size = UDim2.new(0,0,1,0);
+					Parent = TextButton
+				})
+
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = SliderFrame
+				})
+
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Parent = SliderFrame
+				})
+
+				local Title = Create("TextLabel",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(0.118,0,0,0);
+					Size = UDim2.new(0,40,1,0);
+					Font = Enum.Font.SourceSansLight;
+					Text = SliderName;
+					TextColor3 = Color3.fromRGB(255,255,255);
+					TextSize = 21;
+					Parent = Frame
+				})
+
+				local ValueTeller = Create("TextLabel",{
+					BackgroundTransparency = 1;
+					Size = UDim2.new(1,0,1,0);
+					Font = Enum.Font.SourceSansLight;
+					Text = Min;
+					TextColor3 = Color3.fromRGB(255,255,255);
+					TextSize = 21;
+					TextTransparency = 0.5;
+					Parent = TextButton
+				})
+
+				local Listening = false
+
+				TextButton.InputBegan:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+						Listening = true
+					end
+				end)
+
+				TextButton.InputEnded:Connect(function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+						Listening = false
+					end
+				end)
+
+				Service.UserInputService.InputChanged:Connect(function(input)
+					if Listening == true then
+						if input.UserInputType == Enum.UserInputType.MouseMovement then
+							local Oldvalue = Value
+							local BarStart = TextButton.AbsolutePosition
+							local MousePos = input.Position
+							local Difference = MousePos.X - BarStart.X
+							local Percent = Difference / (TextButton.AbsoluteSize.X)
+							Percent = math.clamp(Percent, Min/Max, 1)
+
+							local Value = math.round(Percent*Max)
+
+							SliderFrame.Size = UDim2.new(Percent,0,1,0)
+
+							ValueTeller.Text = tostring(Value)
+
+							if options.Callback then
+								options.Callback(Value,Oldvalue)
+							end
+						end
+					end
+				end)
+			end
+
+			return SectionMethods
+		end
+
+		return TabMethods
+	end
+
+	function WindowMethods:Load()
+		Window.Parent = Player.PlayerGui-- Service.CoreGui
+	end 
+
+	return WindowMethods
+end
+
+function UiLib:Notification(options) -- Title,Text,Duration
+	local Screen = UiLib.NotificationScreen
+	if UiLib.NotificationScreen == nil then
+		UiLib.NotificationScreen = Create("ScreenGui",{
+			Name = "";
+			DisplayOrder = 2147483647;
+			ZIndexBehavior = Enum.ZIndexBehavior.Global;
+			Parent = Player.PlayerGui-- Service.CoreGui
+		})
+		Screen = UiLib.NotificationScreen
+	end
+
+	task.spawn(function()
+		for k,v in next,UiLib.Notifications do
+			v.Position = v.Position+UDim2.new(0,0,0,-69)
+		end
+	end)
+
+	local Sender = options.Title or "Unnamed"
+	local Message = options.Text or ""
+	local Duration = options.Duration or 10
+
+	local Frame:Frame = Create("Frame",{
+		BackgroundColor3 = Color3.fromRGB(40,40,40);
+		Position = UDim2.new(1,-0,1,-66);-- -263
+		Size = UDim2.new(0,262,0,65);
+		Parent = Screen
+	})
+
+	table.insert(UiLib.Notifications,Frame)
+	local UICorner = Create("UICorner",{
+		CornerRadius = UDim.new(0,3);
+		Parent = Frame
+	})
+
+	local UIStroke = Create("UIStroke",{
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+		Color = Color3.fromRGB(166,166,166);
+		Parent = Frame
+	})
+
+	local Line = Create("Frame",{
+		BackgroundColor3 = Color3.fromRGB(166,166,166);
+		BorderSizePixel = 0;
+		Position = UDim2.new(0,0,0.4,0);
+		Size = UDim2.new(1,0,0.01,0);
+		Parent = Frame
+	})
+
+	local Shadow = Create("ImageLabel",{
+		AnchorPoint = Vector2.new(0.5,0.5);
+		BackgroundTransparency = 1;
+		Position = UDim2.new(0.5,0,0.5,1);
+		Size = UDim2.new(1,18,1,18);
+		Image = "rbxassetid://1316045217";
+		ImageColor3 = Color3.fromRGB(0,0,0);
+		ImageTransparency = 0.88;
+		ScaleType = Enum.ScaleType.Slice;
+		SliceCenter = Rect.new(10,10,118,118);
+		SliceScale = 1;
+		Parent = Frame
+	})
+
+	local Title = Create("TextLabel",{
+		BackgroundTransparency = 1;
+		Position = UDim2.new(0,0,0,0);
+		Size = UDim2.new(1,0,0,27);
+		TextSize = 16;
+		TextColor3 = Color3.fromRGB(255,255,255);
+		Font = Enum.Font.SourceSansLight;
+		Text = Sender;
+		Parent = Frame
+	})
+
+	local Message = Create("TextLabel",{
+		BackgroundTransparency = 1;
+		Position = UDim2.new(0,0,0.43,0);
+		Size = UDim2.new(1,0,0,38);
+		TextSize = 16;
+		TextColor3 = Color3.fromRGB(255,255,255);
+		Font = Enum.Font.SourceSansLight;
+		Text = Message;
+		Parent = Frame
+	})
+	Frame.Position = UDim2.new(1,-263,1,-66)
+
+	task.delay(Duration,function()
+		Frame:Destroy()
+	end)
+end
