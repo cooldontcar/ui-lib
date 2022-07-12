@@ -857,3 +857,5 @@ function UiLib:Notification(options) -- Title,Text,Duration
 		Frame:Destroy()
 	end)
 end
+
+return UiLib
