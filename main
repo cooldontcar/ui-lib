@@ -107,11 +107,10 @@ function UiLib:CreateWindow(options)
 		ZIndexBehavior = Enum.ZIndexBehavior.Global;
 	})
 	
-	local Frame = Create("Frame",{
-		AnchorPoint = Vector2.new(0.5,0.5);
+	local Frame:Frame = Create("Frame",{
 		BackgroundColor3 = Color3.fromRGB(40,40,40);
-		Position = UDim2.new(0.5,0,0.5,0);
-		Size = UDim2.new(0,510,0,314);
+		Position = UDim2.new(0.319,0,0.271,0);
+		Size = UDim2.new(0,510,0,314); --40
 		ClipsDescendants = true;
 		Parent = Window
 	})
@@ -234,14 +233,18 @@ function UiLib:CreateWindow(options)
 		Sections.CanvasSize = UDim2.new(0,0,0,UIListLayout.AbsoluteContentSize.Y+13)
 	end))
 	
-	local Opened = false
+	local Closed = false
 	Connect(Minimize.MouseButton1Click:Connect(function()
-		Opened = not Opened
-
-		if Opened == true then
-
+		Closed = not Closed
+				
+		if Closed == true then
+			Frame:TweenSize(UDim2.new(0,510,0,40),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
+			task.wait(0.5)
+			Frame:TweenSize(UDim2.new(0,200,0,40),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
 		else
-
+			Frame:TweenSize(UDim2.new(0,200,0,314),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
+			task.wait(0.5)
+			Frame:TweenSize(UDim2.new(0,510,0,314),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
 		end
 	end))
 	
@@ -446,7 +449,7 @@ function UiLib:CreateWindow(options)
 					AutomaticSize = Enum.AutomaticSize.Y;
 					BackgroundColor3 = Color3.fromRGB(88,88,88);
 					BackgroundTransparency = 0.9;
-					Size = UDim2.new(1,0,0,20);
+					Size = UDim2.new(1,0,0,30);
 					Font = Enum.Font.SourceSansLight;
 					RichText = true;
 					Text = options.Name;
@@ -517,7 +520,7 @@ function UiLib:CreateWindow(options)
 					Name = "";
 					BackgroundColor3 = Color3.fromRGB(88,88,88);
 					BackgroundTransparency = 0.9;
-					Size = UDim2.new(1,0,0,20);
+					Size = UDim2.new(1,0,0,30);
 					Font = Enum.Font.SourceSansLight;
 					TextColor3 = Color3.fromRGB(255,255,255);
 					Text = "";
@@ -539,8 +542,8 @@ function UiLib:CreateWindow(options)
 				
 				local ButtonBorder = Create("Frame",{
 					BackgroundTransparency = 1;
-					Position = UDim2.new(1,-30,0.1,0);
-					Size = UDim2.new(0,15,0,15);
+					Position = UDim2.new(1,-36,0.175,0);
+					Size = UDim2.new(0,20,0,20);
 					Parent = Toggle
 				})
 				
@@ -669,7 +672,7 @@ function UiLib:CreateWindow(options)
 					Name = "";
 					BackgroundColor3 = Color3.fromRGB(88,88,88);
 					BackgroundTransparency = 0.9;
-					Size = UDim2.new(1,0,0,20);
+					Size = UDim2.new(1,0,0,30);
 					Parent = Holder
 				})
 				
@@ -687,8 +690,8 @@ function UiLib:CreateWindow(options)
 				
 				local SliderBorder = Create("TextButton",{
 					BackgroundTransparency = 1;
-					Position = UDim2.new(1,-230,0.1,0);
-					Size = UDim2.new(0,214,0,15);
+					Position = UDim2.new(1,-230,0.19,0);
+					Size = UDim2.new(0,214,0,20);
 					Parent = Slider; 
 					Text = ""
 				})
@@ -805,7 +808,7 @@ function UiLib:CreateWindow(options)
 					Name = "";
 					BackgroundColor3 = Color3.fromRGB(88,88,88);
 					BackgroundTransparency = 0.9;
-					Size = UDim2.new(1,0,0,20);
+					Size = UDim2.new(1,0,0,30);
 					Parent = Holder;
 					Text = ""
 				})
@@ -821,11 +824,11 @@ function UiLib:CreateWindow(options)
 					Transparency = 0.7;
 					Parent = KeyBind
 				})
-
-				local BindBorder:TextButton = Create("TextLabel",{
+				
+				local BindBorder = Create("TextLabel",{
 					BackgroundTransparency = 1;
-					Position = UDim2.new(0.48,0,0.1,0);
-					Size = UDim2.new(0,15,0,15);
+					Position = UDim2.new(1,-36,0.175,0);
+					Size = UDim2.new(0,20,0,20);
 					TextSize = 16;
 					TextColor3 = Color3.fromRGB(255,255,255);
 					Font = Enum.Font.SourceSansLight;
@@ -834,7 +837,7 @@ function UiLib:CreateWindow(options)
 				})
 				
 				Connect(BindBorder:GetPropertyChangedSignal("TextBounds"):Connect(function()
-					BindBorder.Size = UDim2.new(0,BindBorder.TextBounds.X+15,0,15)
+					BindBorder.Size = UDim2.new(0,-BindBorder.TextBounds.X-20,0,20)
 				end))
 				
 				local UICorner = Create("UICorner",{
@@ -926,7 +929,7 @@ function UiLib:CreateWindow(options)
 
 	
 	function WindowMethods:Load()
-		Window.Parent = game.CoreGui
+		Window.Parent = game:GetService("CoreGui")
 		Loaded = true
 	end
 	
