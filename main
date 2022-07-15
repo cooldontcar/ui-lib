@@ -22,9 +22,9 @@ end
 
 function Connect(connection)
 	assert(typeof(connection) == "RBXScriptConnection",string.format("Expected %q got %q","RBXScriptConnection",typeof(connection)))
-	
+
 	table.insert(UiLib.Connections,connection)
-	
+
 	return connection
 end
 
@@ -42,9 +42,9 @@ local OptionResolver = {
 
 function ResolverOFunc(objtype,tab)
 	local Option = OptionResolver[objtype]
-	
+
 	local NewData = {}
-	
+
 	if Option then
 		for k,v in next,tab do
 			for i = 1,#Option do
@@ -54,7 +54,7 @@ function ResolverOFunc(objtype,tab)
 			end
 		end
 	end
-	
+
 	return NewData
 end
 
@@ -99,15 +99,15 @@ function UiLib:CreateWindow(options)
 	options = options and ResolverOFunc("Window",options) or {}
 	options.Name = options.Name or "Unnamed"
 	local Loaded = false
-	
+
 	local WindowMethods = {}
-	
+
 	local Window = Create("ScreenGui",{
 		Name = options.Name;
 		DisplayOrder = 2147483647;
 		ZIndexBehavior = Enum.ZIndexBehavior.Global;
 	})
-	
+
 	local Frame:Frame = Create("Frame",{
 		BackgroundColor3 = Color3.fromRGB(40,40,40);
 		Position = UDim2.new(0.319,0,0.271,0);
@@ -116,12 +116,12 @@ function UiLib:CreateWindow(options)
 		Parent = Window
 	})
 	Draggable(Frame)
-	
+
 	local UICorner = Create("UICorner",{
 		CornerRadius = UDim.new(0,2);
 		Parent = Frame
 	})
-	
+
 	local Line = Create("Frame",{
 		BackgroundColor3 = Color3.fromRGB(170,170,170);
 		BackgroundTransparency = 0.5;
@@ -130,7 +130,7 @@ function UiLib:CreateWindow(options)
 		Size = UDim2.new(0,1,1,-43);
 		Parent = Frame
 	})
-	
+
 	local Line2 = Create("Frame",{
 		BackgroundColor3 = Color3.fromRGB(170,170,170);
 		BackgroundTransparency = 0.5;
@@ -140,7 +140,7 @@ function UiLib:CreateWindow(options)
 		ZIndex = 3;
 		Parent = Frame
 	})
-	
+
 	local Sections = Create("ScrollingFrame",{
 		BackgroundTransparency = 1;
 		Position = UDim2.new(0,121,0,43);
@@ -151,12 +151,12 @@ function UiLib:CreateWindow(options)
 		ScrollBarThickness = 3;
 		Parent = Frame
 	})
-	
+
 	local UIListLayout = Create("UIListLayout",{
 		Padding = UDim.new(0,15);
 		Parent = Sections
 	})
-	
+
 	local Padding = Create("UIPadding",{
 		PaddingBottom = UDim.new(0,5);
 		PaddingLeft = UDim.new(0,5);
@@ -164,7 +164,7 @@ function UiLib:CreateWindow(options)
 		PaddingTop = UDim.new(0,10);
 		Parent = Sections
 	})
-	
+
 	local Tabs = Create("ScrollingFrame",{
 		BackgroundTransparency = 0.95;
 		Position = UDim2.new(0,0,0,43);
@@ -188,7 +188,7 @@ function UiLib:CreateWindow(options)
 		PaddingTop = UDim.new(0,5);
 		Parent = Tabs
 	})
-	
+
 	local Minimize: ImageButton = Create("ImageButton",{
 		BackgroundTransparency = 1;
 		Position = UDim2.new(1,-40,0,8);
@@ -198,7 +198,7 @@ function UiLib:CreateWindow(options)
 		ScaleType = Enum.ScaleType.Stretch;
 		Parent = Frame
 	})
-	
+
 	local Shadow = Create("ImageLabel",{
 		AnchorPoint = Vector2.new(0.5,0.5);
 		BackgroundColor3 = Color3.fromRGB(163,163,163);
@@ -213,7 +213,7 @@ function UiLib:CreateWindow(options)
 		SliceCenter = Rect.new(10,10,118,118);
 		Parent = Frame
 	})
-	
+
 	local Title = Create("TextLabel",{
 		BackgroundTransparency = 1;
 		Position = UDim2.new(0,15,0,0);
@@ -225,19 +225,19 @@ function UiLib:CreateWindow(options)
 		TextXAlignment = Enum.TextXAlignment.Left;
 		Parent = Frame
 	})
-	
+
 	Connect(UIListLayout2:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 		Tabs.CanvasSize = UDim2.new(0,0,0,UIListLayout2.AbsoluteContentSize.Y)
 	end))
-	
+
 	Connect(UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 		Sections.CanvasSize = UDim2.new(0,0,0,UIListLayout.AbsoluteContentSize.Y+13)
 	end))
-	
+
 	local Closed = false
 	Connect(Minimize.MouseButton1Click:Connect(function()
 		Closed = not Closed
-				
+
 		if Closed == true then
 			Frame:TweenSize(UDim2.new(0,510,0,40),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
 			task.wait(0.5)
@@ -248,15 +248,15 @@ function UiLib:CreateWindow(options)
 			Frame:TweenSize(UDim2.new(0,510,0,314),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
 		end
 	end))
-	
+
 	--// Window Methods \\--
 	function WindowMethods:CreateTab(options)
 		options = options and ResolverOFunc("Tab",options) or {}
 		options.Name = options.Name or "Unnamed"
 		options.Home = options.Home or false
-		
+
 		local TabMethods = {}
-		
+
 		local Tab:TextButton = Create("TextButton",{
 			Name = "";
 			BackgroundTransparency = 1;
@@ -267,21 +267,21 @@ function UiLib:CreateWindow(options)
 			TextScaled = true;
 			Parent = Tabs
 		})
-		
-		
+
+
 		local UICorner = Create("UICorner",{
 			CornerRadius = UDim.new(0,3);
 			Parent = Tab
 		})
-		
+
 		local UIStroke = Create("UIStroke",{
-		  ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
-		  Color = Color3.fromRGB(127,127,127);
-          Parent = Tab
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+			Color = Color3.fromRGB(127,127,127);
+			Parent = Tab
 		})
-		
+
 		UiLib.Tabs[Tab] = {}
-		
+
 		local function SelectTab()
 			for k,v in next,UiLib.Tabs do
 				if k ~= Tab then
@@ -298,23 +298,23 @@ function UiLib:CreateWindow(options)
 				end
 			end
 		end
-		
+
 		if options.Home == true then
 			task.spawn(function()
 				repeat task.wait() until Loaded == true
 				SelectTab()
 			end)
 		end
-		
+
 		Connect(Tab.MouseButton1Click:Connect(function()
 			SelectTab()
 		end))
-		
+
 		function TabMethods:CreateSection(options)
 			options = options and ResolverOFunc("Section",options) or {}
 			options.Name = options.Name or "Unnamed"
 			local SectionMethods = {}
-			
+
 			local Section = Create("Frame",{
 				Name = "";
 				AutomaticSize = Enum.AutomaticSize.Y;
@@ -324,7 +324,7 @@ function UiLib:CreateWindow(options)
 				Parent = Sections
 			})
 			table.insert(UiLib.Tabs[Tab],Section)
-			
+
 			local UICorner = Create("UICorner",{
 				CornerRadius = UDim.new(0,3);
 				Parent = Section
@@ -335,7 +335,7 @@ function UiLib:CreateWindow(options)
 				Color = Color3.fromRGB(127,127,127);
 				Parent = Section
 			})
-			
+
 			local Holder = Create("Frame",{
 				AutomaticSize = Enum.AutomaticSize.Y;
 				BackgroundTransparency = 1;
@@ -343,7 +343,7 @@ function UiLib:CreateWindow(options)
 				Position = UDim2.new(0,0,0,5);
 				Parent = Section
 			})
-			
+
 			local UIListLayout = Create("UIListLayout",{
 				Padding = UDim.new(0,5);
 				Parent = Holder
@@ -356,7 +356,7 @@ function UiLib:CreateWindow(options)
 				PaddingTop = UDim.new(0,5);
 				Parent = Holder
 			})
-			
+
 			local Title = Create("TextLabel",{
 				AutomaticSize = Enum.AutomaticSize.X;
 				BackgroundTransparency = 1;
@@ -369,7 +369,7 @@ function UiLib:CreateWindow(options)
 				TextSize = 15;
 				Parent = Section
 			})
-			
+
 			local TitleCover = Create("Frame",{
 				AutomaticSize = Enum.AutomaticSize.Y;
 				BackgroundColor3 = Color3.fromRGB(40,40,40);
@@ -377,11 +377,11 @@ function UiLib:CreateWindow(options)
 				BorderSizePixel = 0;
 				Parent = Title
 			})
-			
+
 			function SectionMethods:CreateLabel(options)
 				options = options and ResolverOFunc("Label",options) or {}
 				options.Name = options.Name or "Unnamed"
-				
+
 				local Label = Create("TextLabel",{
 					Name = "";
 					AutomaticSize = Enum.AutomaticSize.Y;
@@ -396,7 +396,7 @@ function UiLib:CreateWindow(options)
 					TextWrapped = true;
 					Parent = Holder
 				})
-				
+
 				local UICorner = Create("UICorner",{
 					CornerRadius = UDim.new(0,3);
 					Parent = Label
@@ -408,7 +408,7 @@ function UiLib:CreateWindow(options)
 					Transparency = 0.7;
 					Parent = Label
 				})
-				
+
 				local function Set(text,send)
 					if text ~= nil then
 						local OldText = Label.Text
@@ -418,7 +418,7 @@ function UiLib:CreateWindow(options)
 						end
 					end
 				end
-				
+
 				local Data = {
 					Options = options;
 					Instance = Label;
@@ -431,20 +431,20 @@ function UiLib:CreateWindow(options)
 						return Label.Text
 					end,
 				}
-				
+
 				return Data
 			end
-			
+
 			function SectionMethods:CreateButton(options)
 				options = options and ResolverOFunc("Button",options) or {}
 				options.Name = options.Name or "Unnamed"
-				
+
 				if options.Condition == false then
 					options.Condition = false
 				elseif options.Condition ~= true then
 					options.Condition = true
 				end
-				
+
 				local Button:TextButton = Create("TextButton",{
 					Name = "";
 					AutomaticSize = Enum.AutomaticSize.Y;
@@ -471,11 +471,11 @@ function UiLib:CreateWindow(options)
 					Transparency = 0.7;
 					Parent = Button
 				})
-				
+
 				if options.Callback and options.Condition ~= false then
 					Connect(Button.MouseButton1Click:Connect(options.Callback))
 				end
-				
+
 				local function Set(text,send)
 					if text ~= nil then
 						local OldText = Button.Text
@@ -485,7 +485,7 @@ function UiLib:CreateWindow(options)
 						end
 					end
 				end
-					
+
 				local Data = {
 					Options = options;
 					Instance = Button;
@@ -502,21 +502,21 @@ function UiLib:CreateWindow(options)
 
 				return Data
 			end
-			
+
 			function SectionMethods:CreateToggle(options)
 				options = options and ResolverOFunc("Toggle",options) or {}
 				options.Name = options.Name or "Unnamed"
 				options.Mode = options.Mode or "Toggle"
 				options.HoldTime = options.HoldTime or 0.5
-				
+
 				if options.Condition == false then
 					options.Condition = false
 				elseif options.Condition ~= true then
 					options.Condition = true
 				end
-				
+
 				local Toggled = false
-				
+
 				local Toggle:TextButton = Create("TextButton",{
 					Name = "";
 					BackgroundColor3 = Color3.fromRGB(88,88,88);
@@ -528,7 +528,7 @@ function UiLib:CreateWindow(options)
 					TextSize = 16;
 					Parent = Holder
 				})
-				
+
 				local UICorner = Create("UICorner",{
 					CornerRadius = UDim.new(0,3);
 					Parent = Toggle
@@ -540,14 +540,14 @@ function UiLib:CreateWindow(options)
 					Transparency = 0.7;
 					Parent = Toggle
 				})
-				
+
 				local ButtonBorder = Create("Frame",{
 					BackgroundTransparency = 1;
 					Position = UDim2.new(1,-36,0.175,0);
 					Size = UDim2.new(0,20,0,20);
 					Parent = Toggle
 				})
-				
+
 				local UICorner = Create("UICorner",{
 					CornerRadius = UDim.new(0,3);
 					Parent = ButtonBorder
@@ -559,7 +559,7 @@ function UiLib:CreateWindow(options)
 					Transparency = 0;
 					Parent = ButtonBorder
 				})
-				
+
 				local Button = Create("Frame",{
 					AnchorPoint = Vector2.new(0.5,0.5);
 					BackgroundColor3 = Color3.fromRGB(0,116,0);
@@ -567,13 +567,13 @@ function UiLib:CreateWindow(options)
 					Size = UDim2.new(0,0,0,0);
 					Parent = ButtonBorder
 				})
-				
+
 				local UICorner = Create("UICorner",{
 					CornerRadius = UDim.new(0,3);
 					Parent = Button
 				})
-				
-				
+
+
 				local Title = Create("TextLabel",{
 					BackgroundTransparency = 1;
 					Position = UDim2.new(0,15,0,0);
@@ -585,26 +585,26 @@ function UiLib:CreateWindow(options)
 					TextSize = 16;
 					Parent = Toggle
 				})
-				
+
 				local function Activate()
 					if options.Condition ~= false then
-					Toggled = not Toggled
-					if Toggled == true then
-						Tween(Button,TweenInfo.new(0.05,Enum.EasingStyle.Linear),{Size = UDim2.new(1,-2,1,-2)})
-					else
-						Tween(Button,TweenInfo.new(0.05,Enum.EasingStyle.Linear),{Size = UDim2.new(0,0,0,0)})
-					end
-					
-					if options.Callback then
-						options.Callback(Toggled)
+						Toggled = not Toggled
+						if Toggled == true then
+							Tween(Button,TweenInfo.new(0.05,Enum.EasingStyle.Linear),{Size = UDim2.new(1,-2,1,-2)})
+						else
+							Tween(Button,TweenInfo.new(0.05,Enum.EasingStyle.Linear),{Size = UDim2.new(0,0,0,0)})
+						end
+
+						if options.Callback then
+							options.Callback(Toggled)
 						end
 					end	
 				end
-				
+
 				local Held = false
 				local TimeHeld = 0
 				local ButtonTween
-				
+
 				Connect(Toggle.InputBegan:Connect(function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 then
 						if options.Mode ~= "Hold" then
@@ -633,7 +633,7 @@ function UiLib:CreateWindow(options)
 						end
 					end
 				end))
-				
+
 				Connect(Toggle.InputEnded:Connect(function()
 					Held = false
 					if TimeHeld < options.HoldTime and Toggled == false then
@@ -644,11 +644,11 @@ function UiLib:CreateWindow(options)
 					end
 					TimeHeld = 0
 				end))
-				
+
 				local function Set(con)
 					options.Condition = con
 				end
-				
+
 				local Data = {
 					Options = options;
 					Instance = Toggle;
@@ -659,22 +659,22 @@ function UiLib:CreateWindow(options)
 					end,
 					Activate = Activate
 				}
-				
+
 				return Data
 			end
-			
+
 			function SectionMethods:CreateSlider(options)
 				options = options and ResolverOFunc("Slider",options) or {}
 				options.Name = options.Name or "Unnamed"
 				options.Min = options.Min or 0
 				options.Max = options.Max or 100
-				
+
 				if options.Round == false then
 					options.Round = false
 				else
 					options.Round = true
 				end
-				
+
 				local Slider = Create("Frame",{
 					Name = "";
 					BackgroundColor3 = Color3.fromRGB(88,88,88);
@@ -682,7 +682,7 @@ function UiLib:CreateWindow(options)
 					Size = UDim2.new(1,0,0,30);
 					Parent = Holder
 				})
-				
+
 				local UICorner = Create("UICorner",{
 					CornerRadius = UDim.new(0,3);
 					Parent = Slider
@@ -694,7 +694,7 @@ function UiLib:CreateWindow(options)
 					Transparency = 0.7;
 					Parent = Slider
 				})
-				
+
 				local SliderBorder = Create("TextButton",{
 					BackgroundTransparency = 1;
 					Position = UDim2.new(1,-230,0.19,0);
@@ -702,7 +702,7 @@ function UiLib:CreateWindow(options)
 					Parent = Slider; 
 					Text = ""
 				})
-				
+
 				local UICorner = Create("UICorner",{
 					CornerRadius = UDim.new(0,3);
 					Parent = SliderBorder
@@ -714,14 +714,14 @@ function UiLib:CreateWindow(options)
 					Transparency = 0;
 					Parent = SliderBorder
 				})
-				
-				local SliderInside = Create("Frame",{
+
+				local SliderInside:Frame = Create("Frame",{
 					BackgroundColor3 = Color3.fromRGB(67,67,67);
 					Position = UDim2.new(0,1,0,1);
 					Size = UDim2.new(0,-2,1,-2);
 					Parent = SliderBorder
 				})
-				
+
 				local ValueLabel = Create("TextLabel",{
 					BackgroundTransparency = 1;
 					Size = UDim2.new(1,0,1,0);
@@ -729,14 +729,14 @@ function UiLib:CreateWindow(options)
 					Text = "0";
 					TextColor3 = Color3.fromRGB(255,255,255);
 					TextSize = 16;
-				    Parent = SliderBorder
+					Parent = SliderBorder
 				})
-				
+
 				local UICorner = Create("UICorner",{
 					CornerRadius = UDim.new(0,3);
 					Parent = SliderInside
 				})
-				
+
 				local Title = Create("TextLabel",{
 					BackgroundTransparency = 1;
 					Position = UDim2.new(0,15,0,0);
@@ -748,7 +748,7 @@ function UiLib:CreateWindow(options)
 					TextSize = 16;
 					Parent = Slider
 				})
-				
+
 				local Listening = false
 
 				SliderBorder.InputBegan:Connect(function(input)
@@ -762,7 +762,7 @@ function UiLib:CreateWindow(options)
 						Listening = false
 					end
 				end)
-				
+
 				game:GetService("UserInputService").InputChanged:Connect(function(input)
 					if Listening == true then
 						if input.UserInputType == Enum.UserInputType.MouseMovement then
@@ -773,14 +773,15 @@ function UiLib:CreateWindow(options)
 							Percent = math.clamp(Percent, options.Min/options.Max, 1)
 
 							local Value = 0
-							
+
 							if options.Round == true then
 								Value = math.round(Percent*options.Max)
 							elseif options.Round == false then
 								Value = Percent*options.Max
 							end
-							
-							SliderInside.Size = UDim2.new(Percent,-2,1,-2)
+
+							--SliderInside.Size = UDim2.new(Percent,-2,1,-2)
+							SliderInside:TweenSize(UDim2.new(Percent,-2,1,-2),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.1,true)
 							
 							ValueLabel.Text = tostring(Value)
 
@@ -790,15 +791,15 @@ function UiLib:CreateWindow(options)
 						end
 					end
 				end)
-				
+
 				local function Set(res)
 					res.Min = res.Min or options.Min
 					res.Max = res.Max or options.Max
-					
+
 					options.Min = res.Min
 					options.Max = res.Max
 				end
-				
+
 				local Data = {
 					Options = options;
 					Instance = Slider;
@@ -808,16 +809,16 @@ function UiLib:CreateWindow(options)
 						return {options.Min,options.Max}
 					end,
 				}
-				
+
 				return Data
 			end
-			
+
 			function SectionMethods:CreateKeyBind(options)
 				options = options and ResolverOFunc("KeyBind",options) or {}
 				options.Name = options.Name or "Unnamed"
 				options.Bind = options.Bind or Enum.InputType.NoInput
 				options.BindName = (tostring(options.Bind)):split(".")[3] or "None"
-				
+
 				local KeyBind = Create("TextButton",{
 					Name = "";
 					BackgroundColor3 = Color3.fromRGB(88,88,88);
@@ -838,7 +839,7 @@ function UiLib:CreateWindow(options)
 					Transparency = 0.7;
 					Parent = KeyBind
 				})
-				
+
 				local BindBorder = Create("TextLabel",{
 					BackgroundTransparency = 1;
 					Position = UDim2.new(1,-36,0.175,0);
@@ -849,11 +850,11 @@ function UiLib:CreateWindow(options)
 					Text = options.BindName;
 					Parent = KeyBind;
 				})
-				
+
 				Connect(BindBorder:GetPropertyChangedSignal("TextBounds"):Connect(function()
 					BindBorder.Size = UDim2.new(0,-BindBorder.TextBounds.X-20,0,20)
 				end))
-				
+
 				local UICorner = Create("UICorner",{
 					CornerRadius = UDim.new(0,3);
 					Parent = BindBorder
@@ -877,9 +878,9 @@ function UiLib:CreateWindow(options)
 					TextSize = 16;
 					Parent = KeyBind
 				})
-				
+
 				local Switch = false
-				
+
 				local function Set(k)
 					options.Bind = k
 					local Name = (tostring(k)):split(".")[3]
@@ -887,21 +888,21 @@ function UiLib:CreateWindow(options)
 					BindBorder.Text = Name or "None"
 					Switch =  false
 				end
-				
+
 				local AllowedTypes = {
 					[Enum.UserInputType.MouseButton1] = Enum.UserInputType.MouseButton1;
 					[Enum.UserInputType.MouseButton2] =  Enum.UserInputType.MouseButton2
 				}
-				
+
 				game:GetService("UserInputService").InputBegan:Connect(function(input)
 					local Input = nil
-					
+
 					if input.KeyCode == Enum.KeyCode.Unknown then
 						Input = AllowedTypes[input.UserInputType]
 					elseif input.KeyCode ~= Enum.KeyCode.Unknown then
 						Input = input.KeyCode
 					end
-					
+
 					if Switch == true and Input ~= nil then
 						Set(Input)
 					end
@@ -912,7 +913,7 @@ function UiLib:CreateWindow(options)
 						end
 					end
 				end)
-				
+
 				game:GetService("UserInputService").InputEnded:Connect(function(input)
 					if input.KeyCode == options.Bind or AllowedTypes[input.UserInputType] == options.Bind then
 						if options.Callback then
@@ -920,14 +921,14 @@ function UiLib:CreateWindow(options)
 						end
 					end
 				end)
-				
+
 				KeyBind.MouseButton1Click:Connect(function()
 					Switch = true
 					options.Bind = Enum.KeyCode.World73
 					BindBorder.Text = "..."
 				end)
-				
-				
+
+
 				local Data = {
 					Options = options;
 					Instance = KeyBind;
@@ -937,15 +938,15 @@ function UiLib:CreateWindow(options)
 						return options.BindName
 					end,
 				}
-				
+
 				return Data
 			end
-			
+
 			function SectionMethods:CreateDropdown(options)
 				options = options and ResolverOFunc("Dropdown",options) or {}
 				options.Name = options.Name or "Unnamed"
 				options.List = options.List or {}
-				
+
 				local Dropdown = Create("Frame",{
 					BackgroundColor3 = Color3.fromRGB(88,88,88);
 					BackgroundTransparency = 0.9;
@@ -953,7 +954,7 @@ function UiLib:CreateWindow(options)
 					Name = "";
 					Parent = Holder
 				})
-				
+
 				local UICorner = Create("UICorner",{
 					CornerRadius = UDim.new(0,3);
 					Parent = Dropdown
@@ -965,7 +966,7 @@ function UiLib:CreateWindow(options)
 					Transparency = 0.7;
 					Parent = Dropdown
 				})
-				
+
 				local DropdownFrame = Create("Frame",{
 					BackgroundColor3 = Color3.fromRGB(40,40,40);
 					Position = UDim2.new(1,-230,0,5);
@@ -974,7 +975,7 @@ function UiLib:CreateWindow(options)
 					ClipsDescendants = true;
 					Parent = Dropdown
 				})
-				
+
 				local UICorner = Create("UICorner",{
 					CornerRadius = UDim.new(0,3);
 					Parent = DropdownFrame
@@ -986,7 +987,7 @@ function UiLib:CreateWindow(options)
 					Transparency = 0.7;
 					Parent = DropdownFrame
 				})
-				
+
 				local Line = Create("Frame",{
 					BackgroundColor3 = Color3.fromRGB(127,127,127);
 					BackgroundTransparency = 0.2;
@@ -995,7 +996,7 @@ function UiLib:CreateWindow(options)
 					ZIndex = 3333;
 					Parent = DropdownFrame
 				})
-				
+
 				local Scroll = Create("ScrollingFrame",{
 					BackgroundColor3 = Color3.fromRGB(84,84,84);
 					BackgroundTransparency = 1;
@@ -1009,12 +1010,12 @@ function UiLib:CreateWindow(options)
 					ScrollBarThickness = 3;
 					Parent = DropdownFrame
 				})
-				
+
 				local ListLayout = Create("UIListLayout",{
 					Padding = UDim.new(0,0);
 					Parent = Scroll
 				})
-				
+
 				local Minimize:TextButton = Create("TextButton",{
 					BackgroundTransparency = 1;
 					Size = UDim2.new(1,0,0,20);
@@ -1022,7 +1023,7 @@ function UiLib:CreateWindow(options)
 					Text = "";
 					Parent = DropdownFrame
 				})
-				
+
 				local Image = Create("ImageLabel",{
 					BackgroundTransparency = 1;
 					Position = UDim2.new(1,-35,0,-1);
@@ -1031,7 +1032,7 @@ function UiLib:CreateWindow(options)
 					Image = "rbxassetid://387553292";
 					Parent = DropdownFrame
 				})
-				
+
 				local Image2 = Create("ImageLabel",{
 					BackgroundTransparency = 1;
 					Position = UDim2.new(1,-33,0,0);
@@ -1041,7 +1042,7 @@ function UiLib:CreateWindow(options)
 					Image = "rbxassetid://387553292";
 					Parent = DropdownFrame
 				})
-				
+
 				local Selected = Create("TextLabel",{
 					BackgroundTransparency = 1;
 					Position = UDim2.new(0,15,0,0);
@@ -1054,7 +1055,7 @@ function UiLib:CreateWindow(options)
 					TextXAlignment = Enum.TextXAlignment.Left;
 					Parent = DropdownFrame
 				})
-				
+
 				local Title = Create("TextLabel",{
 					BackgroundTransparency = 1;
 					Position = UDim2.new(0,15,0,0);
@@ -1066,7 +1067,7 @@ function UiLib:CreateWindow(options)
 					TextXAlignment = Enum.TextXAlignment.Left;
 					Parent = Dropdown
 				})
-				
+
 				local Opened = false
 
 				local function OpenClose()
@@ -1080,15 +1081,15 @@ function UiLib:CreateWindow(options)
 						game:GetService("TweenService"):Create(Image2,TweenInfo.new(0.1,Enum.EasingStyle.Linear),{ImageTransparency = 0,Rotation = 90}):Play()
 					end
 				end
-				
+
 				local Buttons = {}
-				
+
 				local function CreateButtons()
 					for k,v in next,Buttons do
 						pcall(game.Destroy,v)
 					end
 					table.clear(Buttons)
-					
+
 					for k,v in next,options.List do
 						pcall(function()
 							local ListButton = Create("TextButton",{
@@ -1115,23 +1116,23 @@ function UiLib:CreateWindow(options)
 					end
 				end
 				CreateButtons()
-				
+
 				if options.Start then
 					Selected.Text = options.Start
 					if options.Callback then
 						options.Callback(options.Start)
 					end
 				end
-				
+
 				Connect(ListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 					Scroll.CanvasSize = UDim2.new(0,0,0,ListLayout.AbsoluteContentSize.Y)
 				end))
-				
-				
+
+
 				Minimize.MouseButton1Click:Connect(function()
 					OpenClose()
 				end)
-				
+
 				local Data = {
 					Options = options;
 					Instance = Dropdown;
@@ -1144,22 +1145,22 @@ function UiLib:CreateWindow(options)
 						return options.List
 					end,
 				}
-				
+
 				return Data
 			end
-			
+
 			return SectionMethods
 		end
-		
+
 		return TabMethods
 	end
 
-	
+
 	function WindowMethods:Load()
-		Window.Parent = game.CoreGui
+		Window.Parent = game.Players.LocalPlayer.PlayerGui
 		Loaded = true
 	end
-	
+
 	return WindowMethods
 end
 
