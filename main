@@ -916,7 +916,7 @@ function UiLib:CreateWindow(options)
 				game:GetService("UserInputService").InputEnded:Connect(function(input)
 					if input.KeyCode == options.Bind or AllowedTypes[input.UserInputType] == options.Bind then
 						if options.Callback then
-							--options.Callback(false)
+							options.Callback(false)
 						end
 					end
 				end)
@@ -1156,7 +1156,7 @@ function UiLib:CreateWindow(options)
 
 	
 	function WindowMethods:Load()
-		Window.Parent = game:GetService("Players").LocalPlayer.PlayerGui
+		Window.Parent = game.CoreGui
 		Loaded = true
 	end
 	
