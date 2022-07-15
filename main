@@ -36,7 +36,7 @@ local OptionResolver = {
 	["Button"] = {"Name","Callback","Condition"};
 	["Toggle"] = {"Name","Enabled","Callback","Mode","HoldTime","Condition"};
 	["Slider"] = {"Name","Callback","Min","Max"};
-	["KeyBind"] = {"Name","Callback","Key"};
+	["KeyBind"] = {"Name","Callback","Bind","BindName"};
 	["Dropdown"] = {"Name","Callback","List","Start"}
 }
 
@@ -803,8 +803,8 @@ function UiLib:CreateWindow(options)
 			function SectionMethods:CreateKeyBind(options)
 				options = options and ResolverOFunc("KeyBind",options) or {}
 				options.Name = options.Name or "Unnamed"
-				options.Bind = options.Bind or Enum.KeyCode.World73
-				options.BindName = "None"--(tostring(options.Bind)):split(".")[3]
+				options.Bind = options.Bind or nil
+				options.BindName = (tostring(options.Bind)):split(".")[3] or "None"
 				
 				local KeyBind = Create("TextButton",{
 					Name = "";
@@ -877,7 +877,7 @@ function UiLib:CreateWindow(options)
 				end
 				
 				game:GetService("UserInputService").InputBegan:Connect(function(input)
-					local Input = Enum.KeyCode.Unknown
+					local Input = Enum.KeyCode.World73
 					if input.KeyCode == Enum.KeyCode.Unknown then
 						Input = input.UserInputType
 					else
@@ -1138,7 +1138,7 @@ function UiLib:CreateWindow(options)
 
 	
 	function WindowMethods:Load()
-		Window.Parent = game.CoreGui
+		Window.Parent = game:GetService("Players").LocalPlayer.PlayerGui
 		Loaded = true
 	end
 	
