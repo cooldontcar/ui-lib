@@ -782,9 +782,9 @@ function UiLib:CreateWindow(options)
 
 							--SliderInside.Size = UDim2.new(Percent,-2,1,-2)
 							SliderInside:TweenSize(UDim2.new(Percent,-2,1,-2),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.1,true)
-							
-							ValueLabel.Text = tostring(Value)
 
+							ValueLabel.Text = tostring(Value)
+							
 							if options.Callback then
 								options.Callback(Value)
 							end
@@ -1157,7 +1157,7 @@ function UiLib:CreateWindow(options)
 
 
 	function WindowMethods:Load()
-		Window.Parent = game.Players.LocalPlayer.PlayerGui
+		Window.Parent = game.CoreGui
 		Loaded = true
 	end
 
