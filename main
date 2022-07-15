@@ -36,7 +36,8 @@ local OptionResolver = {
 	["Button"] = {"Name","Callback","Condition"};
 	["Toggle"] = {"Name","Enabled","Callback","Mode","HoldTime","Condition"};
 	["Slider"] = {"Name","Callback","Min","Max"};
-	["KeyBind"] = {"Name","Callback","Key"}
+	["KeyBind"] = {"Name","Callback","Key"};
+	["Dropdown"] = {"Name","Callback","List","Start"}
 }
 
 function ResolverOFunc(objtype,tab)
@@ -800,9 +801,10 @@ function UiLib:CreateWindow(options)
 			end
 			
 			function SectionMethods:CreateKeyBind(options)
+				options = options and ResolverOFunc("KeyBind",options) or {}
 				options.Name = options.Name or "Unnamed"
-				options.Bind = options.Bind or Enum.KeyCode.Unknown
-				options.BindName = (tostring(options.Bind)):split(".")[3]
+				options.Bind = options.Bind or Enum.KeyCode.World73
+				options.BindName = "None"--(tostring(options.Bind)):split(".")[3]
 				
 				local KeyBind = Create("TextButton",{
 					Name = "";
@@ -921,6 +923,213 @@ function UiLib:CreateWindow(options)
 				return Data
 			end
 			
+			function SectionMethods:CreateDropdown(options)
+				options = options and ResolverOFunc("Dropdown",options) or {}
+				options.Name = options.Name or "Unnamed"
+				options.List = options.List or {}
+				
+				local Dropdown = Create("Frame",{
+					BackgroundColor3 = Color3.fromRGB(88,88,88);
+					BackgroundTransparency = 0.9;
+					Size = UDim2.new(1,0,0,30);
+					Name = "";
+					Parent = Holder
+				})
+				
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = Dropdown
+				})
+
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Transparency = 0.7;
+					Parent = Dropdown
+				})
+				
+				local DropdownFrame = Create("Frame",{
+					BackgroundColor3 = Color3.fromRGB(40,40,40);
+					Position = UDim2.new(1,-230,0,5);
+					Size = UDim2.new(0,214,0,20);
+					ZIndex = 3;
+					ClipsDescendants = true;
+					Parent = Dropdown
+				})
+				
+				local UICorner = Create("UICorner",{
+					CornerRadius = UDim.new(0,3);
+					Parent = DropdownFrame
+				})
+
+				local UIStroke = Create("UIStroke",{
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border;
+					Color = Color3.fromRGB(127,127,127);
+					Transparency = 0.7;
+					Parent = DropdownFrame
+				})
+				
+				local Line = Create("Frame",{
+					BackgroundColor3 = Color3.fromRGB(127,127,127);
+					BackgroundTransparency = 0.2;
+					Position = UDim2.new(0,0,0,20);
+					Size = UDim2.new(1,0,0,1);
+					ZIndex = 3333;
+					Parent = DropdownFrame
+				})
+				
+				local Scroll = Create("ScrollingFrame",{
+					BackgroundColor3 = Color3.fromRGB(84,84,84);
+					BackgroundTransparency = 1;
+					Position = UDim2.new(0,0,0,22);
+					Size = UDim2.new(1,0,0,90);
+					CanvasSize = UDim2.new();
+					ClipsDescendants = true;
+					BorderSizePixel = 0;
+					ZIndex = 3333;
+					ScrollBarImageTransparency = 0.5;
+					ScrollBarThickness = 3;
+					Parent = DropdownFrame
+				})
+				
+				local ListLayout = Create("UIListLayout",{
+					Padding = UDim.new(0,0);
+					Parent = Scroll
+				})
+				
+				local Minimize:TextButton = Create("TextButton",{
+					BackgroundTransparency = 1;
+					Size = UDim2.new(1,0,0,20);
+					ZIndex = 3333;
+					Text = "";
+					Parent = DropdownFrame
+				})
+				
+				local Image = Create("ImageLabel",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(1,-35,0,-1);
+					Size = UDim2.new(0,29,0,21);
+					ZIndex = 3333;
+					Image = "rbxassetid://387553292";
+					Parent = DropdownFrame
+				})
+				
+				local Image2 = Create("ImageLabel",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(1,-33,0,0);
+					Size = UDim2.new(0,29,0,17);
+					ZIndex = 3333;
+					Rotation = 90;
+					Image = "rbxassetid://387553292";
+					Parent = DropdownFrame
+				})
+				
+				local Selected = Create("TextLabel",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(0,15,0,0);
+					Size = UDim2.new(0,20,0,20);
+					Font = Enum.Font.SourceSansLight;
+					Text = "Selected";
+					TextColor3 = Color3.fromRGB(255,255,255);
+					TextSize = 16;
+					ZIndex = 3333;
+					TextXAlignment = Enum.TextXAlignment.Left;
+					Parent = DropdownFrame
+				})
+				
+				local Title = Create("TextLabel",{
+					BackgroundTransparency = 1;
+					Position = UDim2.new(0,15,0,0);
+					Size = UDim2.new(0,20,0,30);
+					Font = Enum.Font.SourceSansLight;
+					Text = options.Name;
+					TextColor3 = Color3.fromRGB(255,255,255);
+					TextSize = 16;
+					TextXAlignment = Enum.TextXAlignment.Left;
+					Parent = Dropdown
+				})
+				
+				local Opened = false
+
+				local function OpenClose()
+					Opened = not Opened
+
+					if Opened == true then
+						DropdownFrame.AutomaticSize = Enum.AutomaticSize.Y
+						game:GetService("TweenService"):Create(Image2,TweenInfo.new(0.1,Enum.EasingStyle.Linear),{ImageTransparency = 1,Rotation = 0}):Play()
+					else
+						DropdownFrame.AutomaticSize = Enum.AutomaticSize.None
+						game:GetService("TweenService"):Create(Image2,TweenInfo.new(0.1,Enum.EasingStyle.Linear),{ImageTransparency = 0,Rotation = 90}):Play()
+					end
+				end
+				
+				local Buttons = {}
+				
+				local function CreateButtons()
+					for k,v in next,Buttons do
+						pcall(game.Destroy,v)
+					end
+					table.clear(Buttons)
+					
+					for k,v in next,options.List do
+						pcall(function()
+							local ListButton = Create("TextButton",{
+								BackgroundTransparency = 1;
+								Size = UDim2.new(1,0,0,20);
+								ZIndex = 3333;
+								Font = Enum.Font.SourceSansLight;
+								Text = v;
+								TextColor3 = Color3.fromRGB(255,255,255);
+								TextSize = 16;
+								Parent = Scroll
+							})
+
+							table.insert(Buttons,ListButton)
+
+							ListButton.MouseButton1Click:Connect(function()
+								OpenClose()
+								Selected.Text = v
+								if options.Callback then
+									options.Callback(v)
+								end
+							end)
+						end)
+					end
+				end
+				CreateButtons()
+				
+				if options.Start then
+					Selected.Text = options.Start
+					if options.Callback then
+						options.Callback(options.Start)
+					end
+				end
+				
+				Connect(ListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+					Scroll.CanvasSize = UDim2.new(0,0,0,ListLayout.AbsoluteContentSize.Y)
+				end))
+				
+				
+				Minimize.MouseButton1Click:Connect(function()
+					OpenClose()
+				end)
+				
+				local Data = {
+					Options = options;
+					Instance = Dropdown;
+					Type = "List";
+					Set = function(...)
+						options.List = {...}
+						CreateButtons()
+					end;
+					Get = function()
+						return options.List
+					end,
+				}
+				
+				return Data
+			end
+			
 			return SectionMethods
 		end
 		
@@ -929,7 +1138,7 @@ function UiLib:CreateWindow(options)
 
 	
 	function WindowMethods:Load()
-		Window.Parent = game:GetService("CoreGui")
+		Window.Parent = game.CoreGui
 		Loaded = true
 	end
 	
