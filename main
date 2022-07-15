@@ -35,7 +35,7 @@ local OptionResolver = {
 	["Label"] = {"Name","Callback"};
 	["Button"] = {"Name","Callback","Condition"};
 	["Toggle"] = {"Name","Enabled","Callback","Mode","HoldTime","Condition"};
-	["Slider"] = {"Name","Callback","Min","Max"};
+	["Slider"] = {"Name","Callback","Min","Max","Round"};
 	["KeyBind"] = {"Name","Callback","Bind","BindName"};
 	["Dropdown"] = {"Name","Callback","List","Start"}
 }
@@ -669,6 +669,12 @@ function UiLib:CreateWindow(options)
 				options.Min = options.Min or 0
 				options.Max = options.Max or 100
 				
+				if options.Round == false then
+					options.Round = false
+				else
+					options.Round = true
+				end
+				
 				local Slider = Create("Frame",{
 					Name = "";
 					BackgroundColor3 = Color3.fromRGB(88,88,88);
@@ -756,7 +762,7 @@ function UiLib:CreateWindow(options)
 						Listening = false
 					end
 				end)
-
+				
 				game:GetService("UserInputService").InputChanged:Connect(function(input)
 					if Listening == true then
 						if input.UserInputType == Enum.UserInputType.MouseMovement then
@@ -766,8 +772,14 @@ function UiLib:CreateWindow(options)
 							local Percent = Difference / (SliderBorder.AbsoluteSize.X)
 							Percent = math.clamp(Percent, options.Min/options.Max, 1)
 
-							local Value = math.round(Percent*options.Max)
-
+							local Value = 0
+							
+							if options.Round == true then
+								Value = math.round(Percent*options.Max)
+							elseif options.Round == false then
+								Value = Percent*options.Max
+							end
+							
 							SliderInside.Size = UDim2.new(Percent,-2,1,-2)
 							
 							ValueLabel.Text = tostring(Value)
@@ -803,7 +815,7 @@ function UiLib:CreateWindow(options)
 			function SectionMethods:CreateKeyBind(options)
 				options = options and ResolverOFunc("KeyBind",options) or {}
 				options.Name = options.Name or "Unnamed"
-				options.Bind = options.Bind or nil
+				options.Bind = options.Bind or Enum.InputType.NoInput
 				options.BindName = (tostring(options.Bind)):split(".")[3] or "None"
 				
 				local KeyBind = Create("TextButton",{
@@ -872,23 +884,29 @@ function UiLib:CreateWindow(options)
 					options.Bind = k
 					local Name = (tostring(k)):split(".")[3]
 					options.BindName = Name
-					BindBorder.Text = Name
+					BindBorder.Text = Name or "None"
 					Switch =  false
 				end
 				
+				local AllowedTypes = {
+					[Enum.UserInputType.MouseButton1] = Enum.UserInputType.MouseButton1;
+					[Enum.UserInputType.MouseButton2] =  Enum.UserInputType.MouseButton2
+				}
+				
 				game:GetService("UserInputService").InputBegan:Connect(function(input)
-					local Input = Enum.KeyCode.World73
+					local Input = nil
+					
 					if input.KeyCode == Enum.KeyCode.Unknown then
-						Input = input.UserInputType
-					else
+						Input = AllowedTypes[input.UserInputType]
+					elseif input.KeyCode ~= Enum.KeyCode.Unknown then
 						Input = input.KeyCode
 					end
 					
-					if Switch == true then
+					if Switch == true and Input ~= nil then
 						Set(Input)
 					end
-					
-					if input.KeyCode == options.Bind or input.UserInputType == options.Bind then
+
+					if AllowedTypes[input.UserInputType] == options.Bind or input.KeyCode == options.Bind then
 						if options.Callback then
 							options.Callback(true)
 						end
@@ -896,16 +914,16 @@ function UiLib:CreateWindow(options)
 				end)
 				
 				game:GetService("UserInputService").InputEnded:Connect(function(input)
-					if input.KeyCode == options.Bind or input.UserInputType == options.Bind then
+					if input.KeyCode == options.Bind or AllowedTypes[input.UserInputType] == options.Bind then
 						if options.Callback then
-							options.Callback(false)
+							--options.Callback(false)
 						end
 					end
 				end)
 				
 				KeyBind.MouseButton1Click:Connect(function()
 					Switch = true
-					options.Bind = Enum.KeyCode.Unknown
+					options.Bind = Enum.KeyCode.World73
 					BindBorder.Text = "..."
 				end)
 				
@@ -1138,7 +1156,7 @@ function UiLib:CreateWindow(options)
 
 	
 	function WindowMethods:Load()
-		Window.Parent = game:GetService("CoreGui")
+		Window.Parent = game:GetService("Players").LocalPlayer.PlayerGui
 		Loaded = true
 	end
 	
