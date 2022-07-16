@@ -1189,7 +1189,7 @@ function UiLib:CreateWindow(options)
 
 
 	function WindowMethods:Load()
-		Window.Parent = game.Players.LocalPlayer.PlayerGui
+		Window.Parent = game.CoreGui
 		Loaded = true
 	end
 
