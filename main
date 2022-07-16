@@ -35,7 +35,7 @@ local OptionResolver = {
 	["Label"] = {"Name","Callback"};
 	["Button"] = {"Name","Callback","Condition"};
 	["Toggle"] = {"Name","Enabled","Callback","Mode","HoldTime","Condition"};
-	["Slider"] = {"Name","Callback","Min","Max","Round"};
+	["Slider"] = {"Name","Callback","Min","Max","Suffix","Decimals","Start"};
 	["KeyBind"] = {"Name","Callback","Bind","BindName"};
 	["Dropdown"] = {"Name","Callback","List","Start"}
 }
@@ -514,6 +514,7 @@ function UiLib:CreateWindow(options)
 				elseif options.Condition ~= true then
 					options.Condition = true
 				end
+	
 
 				local Toggled = false
 
@@ -586,9 +587,9 @@ function UiLib:CreateWindow(options)
 					Parent = Toggle
 				})
 
-				local function Activate()
+				local function Activate(v)
 					if options.Condition ~= false then
-						Toggled = not Toggled
+						Toggled = v or not Toggled
 						if Toggled == true then
 							Tween(Button,TweenInfo.new(0.05,Enum.EasingStyle.Linear),{Size = UDim2.new(1,-2,1,-2)})
 						else
@@ -600,7 +601,11 @@ function UiLib:CreateWindow(options)
 						end
 					end	
 				end
-
+				
+				if options.Enabled then
+					Activate(options.Enable)
+				end
+				
 				local Held = false
 				local TimeHeld = 0
 				local ButtonTween
@@ -668,12 +673,9 @@ function UiLib:CreateWindow(options)
 				options.Name = options.Name or "Unnamed"
 				options.Min = options.Min or 0
 				options.Max = options.Max or 100
-
-				if options.Round == false then
-					options.Round = false
-				else
-					options.Round = true
-				end
+				options.Decimals = options.Decimals or 1
+				options.Suffix = options.Suffix or "%"
+				options.Start = options.Start or options.Min
 
 				local Slider = Create("Frame",{
 					Name = "";
@@ -762,7 +764,20 @@ function UiLib:CreateWindow(options)
 						Listening = false
 					end
 				end)
-
+				
+				
+				task.spawn(function()
+					repeat 
+						wait()
+					until Loaded == true
+					SliderInside.Size = UDim2.new(math.clamp(options.Start/options.Max, options.Min/options.Max, 1),-2,1,-2)
+					local Value = math.clamp(options.Start,options.Min,options.Max)
+					ValueLabel.Text = Value..options.Suffix		
+					if options.Callback then
+						options.Callback(tonumber(Value))
+					end
+				end)
+				
 				game:GetService("UserInputService").InputChanged:Connect(function(input)
 					if Listening == true then
 						if input.UserInputType == Enum.UserInputType.MouseMovement then
@@ -774,19 +789,20 @@ function UiLib:CreateWindow(options)
 
 							local Value = 0
 
-							if options.Round == true then
+							if options.Decimals == 1 then
 								Value = math.round(Percent*options.Max)
-							elseif options.Round == false then
-								Value = Percent*options.Max
+							else
+								Value = string.format("%."..tostring(options.Decimals).."s", tostring(Percent*options.Max))
 							end
+							--Value = math.round(Percent*options.Max)
 
 							--SliderInside.Size = UDim2.new(Percent,-2,1,-2)
 							SliderInside:TweenSize(UDim2.new(Percent,-2,1,-2),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.1,true)
 
-							ValueLabel.Text = tostring(Value)
+							ValueLabel.Text = tostring(Value)..options.Suffix
 							
 							if options.Callback then
-								options.Callback(Value)
+								options.Callback(tonumber(Value))
 							end
 						end
 					end
@@ -813,7 +829,7 @@ function UiLib:CreateWindow(options)
 				return Data
 			end
 
-			function SectionMethods:CreateKeyBind(options)
+			function SectionMethods:CreateKeybind(options)
 				options = options and ResolverOFunc("KeyBind",options) or {}
 				options.Name = options.Name or "Unnamed"
 				options.Bind = options.Bind or Enum.InputType.NoInput
@@ -909,7 +925,7 @@ function UiLib:CreateWindow(options)
 
 					if AllowedTypes[input.UserInputType] == options.Bind or input.KeyCode == options.Bind then
 						if options.Callback then
-							options.Callback(true)
+							options.Callback(true,false)
 						end
 					end
 				end)
@@ -917,7 +933,7 @@ function UiLib:CreateWindow(options)
 				game:GetService("UserInputService").InputEnded:Connect(function(input)
 					if input.KeyCode == options.Bind or AllowedTypes[input.UserInputType] == options.Bind then
 						if options.Callback then
-							options.Callback(false)
+							options.Callback(false,true)
 						end
 					end
 				end)
@@ -1075,9 +1091,25 @@ function UiLib:CreateWindow(options)
 
 					if Opened == true then
 						DropdownFrame.AutomaticSize = Enum.AutomaticSize.Y
+						DropdownFrame.ZIndex = 3334
+						task.spawn(function()
+							for k,v in next,Dropdown:GetDescendants() do
+								pcall(function()
+									v.ZIndex = 3335
+								end)
+							end
+						end)
 						game:GetService("TweenService"):Create(Image2,TweenInfo.new(0.1,Enum.EasingStyle.Linear),{ImageTransparency = 1,Rotation = 0}):Play()
 					else
 						DropdownFrame.AutomaticSize = Enum.AutomaticSize.None
+						DropdownFrame.ZIndex = 3
+						task.spawn(function()
+							for k,v in next,Dropdown:GetDescendants() do
+								pcall(function()
+									v.ZIndex = 3333
+								end)
+							end
+						end)
 						game:GetService("TweenService"):Create(Image2,TweenInfo.new(0.1,Enum.EasingStyle.Linear),{ImageTransparency = 0,Rotation = 90}):Play()
 					end
 				end
@@ -1157,7 +1189,7 @@ function UiLib:CreateWindow(options)
 
 
 	function WindowMethods:Load()
-		Window.Parent = game.CoreGui
+		Window.Parent = game.Players.LocalPlayer.PlayerGui
 		Loaded = true
 	end
 
