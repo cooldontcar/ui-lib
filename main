@@ -112,7 +112,7 @@ function UiLib:CreateWindow(options)
 		BackgroundColor3 = Color3.fromRGB(40,40,40);
 		Position = UDim2.new(0.319,0,0.271,0);
 		Size = UDim2.new(0,510,0,314); --40
-		ClipsDescendants = true;
+		ClipsDescendants = false;
 		Parent = Window
 	})
 	Draggable(Frame)
@@ -1189,7 +1189,7 @@ function UiLib:CreateWindow(options)
 
 
 	function WindowMethods:Load()
-		Window.Parent = game.CoreGui
+		Window.Parent = game.Players.LocalPlayer.PlayerGui
 		Loaded = true
 	end
 
