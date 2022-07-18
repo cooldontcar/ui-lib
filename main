@@ -1189,6 +1189,7 @@ function UiLib:CreateWindow(options)
 						options.List = {...}
 						CreateButtons()
 						OpenClose()
+						task.wait()
 						OpenClose()
 					end;
 					Get = function()
