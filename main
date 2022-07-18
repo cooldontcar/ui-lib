@@ -112,7 +112,7 @@ function UiLib:CreateWindow(options)
 		BackgroundColor3 = Color3.fromRGB(40,40,40);
 		Position = UDim2.new(0.319,0,0.271,0);
 		Size = UDim2.new(0,510,0,314); --40
-		ClipsDescendants = false;
+		ClipsDescendants = true;
 		Parent = Window
 	})
 	Draggable(Frame)
@@ -148,6 +148,7 @@ function UiLib:CreateWindow(options)
 		CanvasSize = UDim2.new(0,0,0,0);
 		ScrollBarImageColor3 = Color3.fromRGB(144,144,144);
 		ScrollBarImageTransparency = 0.5;
+		ClipsDescendants = true;
 		ScrollBarThickness = 3;
 		Parent = Frame
 	})
@@ -227,25 +228,38 @@ function UiLib:CreateWindow(options)
 	})
 
 	Connect(UIListLayout2:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		Tabs.CanvasSize = UDim2.new(0,0,0,UIListLayout2.AbsoluteContentSize.Y)
+		Tabs.CanvasSize = UDim2.new(0,0,0,UIListLayout2.AbsoluteContentSize.Y+7)
 	end))
 
 	Connect(UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 		Sections.CanvasSize = UDim2.new(0,0,0,UIListLayout.AbsoluteContentSize.Y+13)
 	end))
-
+	
 	local Closed = false
 	Connect(Minimize.MouseButton1Click:Connect(function()
 		Closed = not Closed
 
 		if Closed == true then
+			for k,v in next,UiLib.Objects do
+				pcall(function()
+					v.Rotation = 0
+				end)
+			end
 			Frame:TweenSize(UDim2.new(0,510,0,40),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
 			task.wait(0.5)
 			Frame:TweenSize(UDim2.new(0,200,0,40),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
 		else
+			for k,v in next,UiLib.Objects do
+				pcall(function()
+					if v.AutoLocalize == false and v.Position == UDim2.new(1,-230,0,5) and v.ClipsDescendants == true then
+						v.Rotation = 0.000000000000000001;
+					end
+				end)
+			end
 			Frame:TweenSize(UDim2.new(0,200,0,314),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
 			task.wait(0.5)
 			Frame:TweenSize(UDim2.new(0,510,0,314),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
+			task.wait(0.5)
 		end
 	end))
 
@@ -988,8 +1002,10 @@ function UiLib:CreateWindow(options)
 					Position = UDim2.new(1,-230,0,5);
 					Size = UDim2.new(0,214,0,20);
 					ZIndex = 3;
+					Rotation = 0.000000000000000001;
 					ClipsDescendants = true;
-					Parent = Dropdown
+					Parent = Dropdown;
+					AutoLocalize = false
 				})
 
 				local UICorner = Create("UICorner",{
@@ -1083,13 +1099,18 @@ function UiLib:CreateWindow(options)
 					TextXAlignment = Enum.TextXAlignment.Left;
 					Parent = Dropdown
 				})
-
+				Scroll.Visible = false
+				Line.Visible = false
+			
+				
 				local Opened = false
 
 				local function OpenClose()
 					Opened = not Opened
 
 					if Opened == true then
+						Scroll.Visible = true
+						Line.Visible = true
 						DropdownFrame.AutomaticSize = Enum.AutomaticSize.Y
 						DropdownFrame.ZIndex = 3334
 						task.spawn(function()
@@ -1101,6 +1122,8 @@ function UiLib:CreateWindow(options)
 						end)
 						game:GetService("TweenService"):Create(Image2,TweenInfo.new(0.1,Enum.EasingStyle.Linear),{ImageTransparency = 1,Rotation = 0}):Play()
 					else
+						Scroll.Visible = false
+						Line.Visible = false
 						DropdownFrame.AutomaticSize = Enum.AutomaticSize.None
 						DropdownFrame.ZIndex = 3
 						task.spawn(function()
