@@ -226,13 +226,14 @@ function UiLib:CreateWindow(options)
 		TextXAlignment = Enum.TextXAlignment.Left;
 		Parent = Frame
 	})
-
+	
+	local SectionChange = 0
 	Connect(UIListLayout2:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 		Tabs.CanvasSize = UDim2.new(0,0,0,UIListLayout2.AbsoluteContentSize.Y+7)
 	end))
 
 	Connect(UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		Sections.CanvasSize = UDim2.new(0,0,0,UIListLayout.AbsoluteContentSize.Y+13)
+		Sections.CanvasSize = UDim2.new(0,0,0,UIListLayout.AbsoluteContentSize.Y+13+SectionChange)
 	end))
 	
 	local Closed = false
@@ -240,22 +241,10 @@ function UiLib:CreateWindow(options)
 		Closed = not Closed
 
 		if Closed == true then
-			for k,v in next,UiLib.Objects do
-				pcall(function()
-					v.Rotation = 0
-				end)
-			end
 			Frame:TweenSize(UDim2.new(0,510,0,40),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
 			task.wait(0.5)
 			Frame:TweenSize(UDim2.new(0,200,0,40),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
 		else
-			for k,v in next,UiLib.Objects do
-				pcall(function()
-					if v.AutoLocalize == false and v.Position == UDim2.new(1,-230,0,5) and v.ClipsDescendants == true then
-						v.Rotation = 0.000000000000000001;
-					end
-				end)
-			end
 			Frame:TweenSize(UDim2.new(0,200,0,314),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
 			task.wait(0.5)
 			Frame:TweenSize(UDim2.new(0,510,0,314),Enum.EasingDirection.Out,Enum.EasingStyle.Linear,0.5,true)
@@ -358,7 +347,7 @@ function UiLib:CreateWindow(options)
 				Parent = Section
 			})
 
-			local UIListLayout = Create("UIListLayout",{
+			local UIListLayout0 = Create("UIListLayout",{
 				Padding = UDim.new(0,5);
 				Parent = Holder
 			})
@@ -1002,7 +991,6 @@ function UiLib:CreateWindow(options)
 					Position = UDim2.new(1,-230,0,5);
 					Size = UDim2.new(0,214,0,20);
 					ZIndex = 3;
-					Rotation = 0.000000000000000001;
 					ClipsDescendants = true;
 					Parent = Dropdown;
 					AutoLocalize = false
@@ -1043,7 +1031,7 @@ function UiLib:CreateWindow(options)
 					Parent = DropdownFrame
 				})
 
-				local ListLayout = Create("UIListLayout",{
+				local ListLayout3124 = Create("UIListLayout",{
 					Padding = UDim.new(0,0);
 					Parent = Scroll
 				})
@@ -1109,6 +1097,7 @@ function UiLib:CreateWindow(options)
 					Opened = not Opened
 
 					if Opened == true then
+						SectionChange += 90
 						Scroll.Visible = true
 						Line.Visible = true
 						DropdownFrame.AutomaticSize = Enum.AutomaticSize.Y
@@ -1122,6 +1111,9 @@ function UiLib:CreateWindow(options)
 						end)
 						game:GetService("TweenService"):Create(Image2,TweenInfo.new(0.1,Enum.EasingStyle.Linear),{ImageTransparency = 1,Rotation = 0}):Play()
 					else
+						SectionChange -= 90
+						UIListLayout.Parent = nil
+						UIListLayout.Parent = Sections
 						Scroll.Visible = false
 						Line.Visible = false
 						DropdownFrame.AutomaticSize = Enum.AutomaticSize.None
@@ -1135,6 +1127,7 @@ function UiLib:CreateWindow(options)
 						end)
 						game:GetService("TweenService"):Create(Image2,TweenInfo.new(0.1,Enum.EasingStyle.Linear),{ImageTransparency = 0,Rotation = 90}):Play()
 					end
+					Sections.CanvasSize = UDim2.new(0,0,0,UIListLayout.AbsoluteContentSize.Y+13+SectionChange)
 				end
 
 				local Buttons = {}
@@ -1179,8 +1172,8 @@ function UiLib:CreateWindow(options)
 					end
 				end
 
-				Connect(ListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-					Scroll.CanvasSize = UDim2.new(0,0,0,ListLayout.AbsoluteContentSize.Y)
+				Connect(ListLayout3124:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+					Scroll.CanvasSize = UDim2.new(0,0,0,ListLayout3124.AbsoluteContentSize.Y)
 				end))
 
 
